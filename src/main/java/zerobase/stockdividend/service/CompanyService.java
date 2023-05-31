@@ -1,7 +1,9 @@
 package zerobase.stockdividend.service;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.Trie;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import zerobase.stockdividend.model.Company;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CompanyService {
 
+
+    private final Trie trie; //Bean으로 관리 config/Appconfig
     private final Scrapper yahooFinanceScrapper;
     private final CompanyRepository companyRepository;
     private final DividendRepository dividendRepository;
@@ -56,8 +60,37 @@ public class CompanyService {
 
     }
 
+    public void addAutocompleteKeyword(String keyword) {
+        this.trie.put(keyword, null);
+    }
+
+    public List<String> autocomplete(String keyword) {
+        return (List<String>)this.trie.prefixMap(keyword).keySet()
+                .stream()
+//                .limit(10) 스트림의 반환 갯수를 정해줘 프론트로 날릴 개수를 정함
+                .collect(Collectors.toList());
+    }
+
+    public void deleteAutocompleteKeyword(String keyword) {
+
+        this.trie.remove(keyword);
+    }
+
+    public List<String> getCompanyNamesByKeyword(String keyword) {
+
+        Pageable limit = PageRequest.of(0, 10);
+
+        Page<CompanyEntity> byNameStartingWithIgnoreCase = this.companyRepository.findByNameStartingWithIgnoreCase(keyword , limit);
+
+        return byNameStartingWithIgnoreCase.stream()
+                .map(e -> e.getName())
+                .collect(Collectors.toList());
+
+    }
 
     public Page<CompanyEntity> getAllCompany(Pageable pageable) {
         return this.companyRepository.findAll(pageable);
     }
+
+
 }
