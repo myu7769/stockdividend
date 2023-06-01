@@ -12,7 +12,7 @@ import zerobase.stockdividend.persist.CompanyEntity;
 import zerobase.stockdividend.persist.CompanyRepository;
 import zerobase.stockdividend.persist.DividendRepository;
 import zerobase.stockdividend.persist.entity.DividendEntity;
-import zerobase.stockdividend.scraper.Scrapper;
+import zerobase.stockdividend.scraper.Scraper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class CompanyService {
 
 
     private final Trie trie; //Bean으로 관리 config/Appconfig
-    private final Scrapper yahooFinanceScrapper;
+    private final Scraper yahooFinanceScraper;
     private final CompanyRepository companyRepository;
     private final DividendRepository dividendRepository;
 
@@ -40,10 +40,10 @@ public class CompanyService {
 
     private Company storeCompanyAndDividend(String ticker) {
         // ticker를 기준으로 회사를 스크랩핑
-        Company company = this.yahooFinanceScrapper.scrapCompanyByTicker(ticker);
+        Company company = this.yahooFinanceScraper.scrapCompanyByTicker(ticker);
 
         // 해당 회사가 존재할 경우, 회사의 배당금 정보를 스크래핑
-        ScrapedResult scrapperResult = this.yahooFinanceScrapper.scrap(company);
+        ScrapedResult scrapperResult = this.yahooFinanceScraper.scrap(company);
 
         // 스크래핑 결과
         // CompanyID 와 같이 저장해야됨

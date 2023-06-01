@@ -3,7 +3,7 @@ package zerobase.stockdividend.scraper;
 import zerobase.stockdividend.model.Company;
 import zerobase.stockdividend.model.ScrapedResult;
 
-public class naverFinanceScrapper implements Scrapper {
+public class naverFinanceScraper implements Scraper {
     @Override
     public ScrapedResult scrap(Company company) {
         return null;
