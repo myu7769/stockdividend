@@ -8,8 +8,12 @@ import lombok.RequiredArgsConstructor;
 
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import zerobase.stockdividend.service.MemberService;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +26,8 @@ public class TokenProvider {
     private static final long TOKEN_EXPIRE_TIME = (1000 * 60 * 60); // 1hour
     @Value("{#spring.jwt.secret}")
     private String secret;
+
+    private final MemberService memberService;
 
     public String generateToken(String username, List<String> roles){
 
@@ -37,6 +43,11 @@ public class TokenProvider {
                 .setExpiration(expiredDate)
                 .signWith(SignatureAlgorithm.HS512, this.secret)
                 .compact();
+    }
+
+    public Authentication getAuthentication(String jwt) {
+        UserDetails userDetails = this.memberService.loadUserByUsername(this.getUsername(jwt));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public String getUsername(String token) {

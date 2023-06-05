@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @Entity(name = "MEMBER")
 @Getter
 @ToString
+@Transactional
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberEntity implements UserDetails {
@@ -28,7 +30,7 @@ public class MemberEntity implements UserDetails {
     private String password;
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles;
 
     @Override

@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import zerobase.stockdividend.exception.impl.AlreadycompanyException;
+import zerobase.stockdividend.exception.impl.NoCompanyException;
 import zerobase.stockdividend.model.Company;
 import zerobase.stockdividend.model.ScrapedResult;
 import zerobase.stockdividend.persist.CompanyEntity;
@@ -32,7 +34,7 @@ public class CompanyService {
         boolean exists = this.companyRepository.existsByTicker(ticker);
 
         if (exists) {
-            throw new RuntimeException("already exists ticker -> " + ticker);
+            throw new AlreadycompanyException();
         }
 
         return this.storeCompanyAndDividend(ticker);
@@ -67,7 +69,7 @@ public class CompanyService {
     public List<String> autocomplete(String keyword) {
         return (List<String>)this.trie.prefixMap(keyword).keySet()
                 .stream()
-//                .limit(10) 스트림의 반환 갯수를 정해줘 프론트로 날릴 개수를 정함
+                .limit(10) // 스트림의 반환 갯수를 정해줘 프론트로 날릴 개수를 정함
                 .collect(Collectors.toList());
     }
 
@@ -75,6 +77,19 @@ public class CompanyService {
 
         this.trie.remove(keyword);
     }
+
+    public String deleteCompany(String ticker) {
+        var company = this.companyRepository.findByTicker(ticker)
+                .orElseThrow(()-> new NoCompanyException());
+        this.dividendRepository.deleteAllByCompanyId(company.getId());
+        this.companyRepository.delete(company);
+
+        this.deleteAutocompleteKeyword(company.getName());
+
+
+        return company.getName();
+    }
+
 
     public List<String> getCompanyNamesByKeyword(String keyword) {
 

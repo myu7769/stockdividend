@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
+import zerobase.stockdividend.exception.impl.NotexistCompanyException;
 import zerobase.stockdividend.model.Company;
 import zerobase.stockdividend.model.Dividend;
 import zerobase.stockdividend.model.ScrapedResult;
@@ -88,8 +89,8 @@ public class YahooFinanceScraper implements Scraper {
             String title = titleEle.text().split(" - ")[1].trim(); // abc - def - xzy -> def
             return new Company(ticker, title);
 
-        } catch (IOException e) {
-            throw new RuntimeException("failed to scrap ticker -> " + ticker);
+        } catch (Exception e) {
+            throw new NotexistCompanyException();
         }
     }
 }
